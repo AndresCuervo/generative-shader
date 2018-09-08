@@ -26,4 +26,5 @@ class ofApp : public ofBaseApp{
         int windowWidth;
         char *fragmentSrc;
         double defaultShaderTestValue{0.5};
+        ofTrueTypeFont sourceCodeProFont;
 };

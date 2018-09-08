@@ -45,18 +45,21 @@ void ofApp::setup(){
             // Normalized pixel coordinates (from 0 to 1)
             "vec2 uv = gl_FragCoord.xy/u_resolution.xy;"
             // Time varying pixel color
-            "vec3 col = 0.5 + %f*cos(u_time+uv.xyx+vec3(0,2,4));"
-            // "vec3 col = 0.5 + 0.5*cos(u_time*%f+uv.xyx+vec3(0,2,4));"
+            // "vec3 col = 0.5 + %f*cos(u_time+uv.xyx+vec3(0,2,4));"
+            "vec3 col = 0.5 + 0.5*cos(u_time*%f+uv.xyx+vec3(0,2,4));"
             "gl_FragColor = vec4(col,1.0);"
         " }";
     shader = createShaderFromText(createShaderText(fragmentSrc, defaultShaderTestValue));
 
     windowWidth = ofGetWidth();
     windowHeight = ofGetHeight();
+
+    sourceCodeProFont.load("fonts/SourceCodePro-Regular.ttf", 32);
 }
 
 void ofApp::draw(){
-    int sampleHeight = windowHeight * 0.24;
+    int numSamples = 5;
+    int sampleHeight = windowHeight / (numSamples - 1);
     // ofSetColor(255);
     // shader.begin();
     // shader.setUniform1f("u_time", ofGetElapsedTimef());
@@ -65,19 +68,23 @@ void ofApp::draw(){
     // shader.end();
 
     // Here, draw a loop going from 1 to n creating new shaders but setting the same uniforms!!!!! Just copy the current shader lines, can abstract later if you need to do this more than twice!!
-    for (int i = 1; i < 5; ++i) {
+    for (int i = 1; i < numSamples; ++i) {
+        ofPoint sampleLocation = ofPoint(0, sampleHeight * i - sampleHeight);
         double changedValue = defaultShaderTestValue * (1.0/i);
-        ofLog() << i << " : " << changedValue;
         string newShaderText = createShaderText(fragmentSrc, changedValue);
         ofShader newShader = createShaderFromText(newShaderText);
         ofSetColor(255);
         newShader.begin();
         newShader.setUniform1f("u_time", ofGetElapsedTimef());
         newShader.setUniform2f("u_resolution", windowWidth, windowHeight);
-        ofDrawRectangle(0, sampleHeight * i - sampleHeight, windowWidth, sampleHeight);
+        ofDrawRectangle(0, sampleLocation.y, windowWidth, sampleHeight);
         newShader.end();
+
+        stringstream changedText;
+        changedText << "Changed to: ";
+        changedText << changedValue;
+        sourceCodeProFont.drawString(changedText.str(), 10, sampleLocation.y + (sourceCodeProFont.getSize() * 1.5));
     }
-    ofLog() << " ----- done ----- ";
 }
 
 //--------------------------------------------------------------
